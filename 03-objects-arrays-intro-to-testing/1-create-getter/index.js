@@ -5,4 +5,20 @@
  */
 export function createGetter(path) {
 
+  let properties = path.split(".");
+  let propIterator = properties[Symbol.iterator]();
+
+  return function parseObject(object) {
+    let next = propIterator.next();
+    if (object === undefined || object.isEmpty || next.done) {
+      return object;
+    }
+    let key = next.value;
+    for (const oKey of Object.keys(object)) {
+      if (oKey === key) {
+        return parseObject(object[key]);
+      }
+    }
+  };
+
 }
