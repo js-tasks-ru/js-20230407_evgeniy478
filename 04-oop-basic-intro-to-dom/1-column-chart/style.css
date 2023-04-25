@@ -55,7 +55,7 @@ body {
 }
 
 .column-chart__chart div {
-  height: calc(var(--value) * 1px);
+  height: calc(var(--value) * 1%);
   background-color: var(--chart-column-color);
   min-width: 1px;
   flex-grow: 1;
