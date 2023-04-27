@@ -11,10 +11,10 @@ export default class NotificationMessage {
   }
 
   show() {
-/*    let elements = document.getElementsByClassName(NotificationMessage.primeClass);
+    let elements = document.getElementsByClassName(NotificationMessage.primeClass);
     if (elements.length === 0) {
       document.body.append(this.element);
-    }*/
+    }
     setTimeout(this.remove, this.duration);
   }
 
@@ -30,11 +30,6 @@ export default class NotificationMessage {
           ${this.message}
         </div>
       </div>`;
-    /*this.element = element;*/
-    let elements = document.getElementsByClassName(NotificationMessage.primeClass);
-    if (elements.length === 0) {
-      document.body.append(this.element);
-    }
     return element;
   }
 
