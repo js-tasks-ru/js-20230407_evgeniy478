@@ -36,13 +36,13 @@ export default class NotificationMessage {
   update() {}
 
   destroy() {
-    /*this.remove();*/
+    this.remove();
     this.element = null;
   }
 
   remove() {
     let elements = document.getElementsByClassName(NotificationMessage.primeClass);
-    if (this.element != null) {
+    if (this.element !== undefined && this.element !== null) {
       this.element.remove();
     }
     if (elements.length > 0) {
