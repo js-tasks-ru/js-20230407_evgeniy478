@@ -1,10 +1,11 @@
 export default class SortableTable {
   constructor(headerConfig = [], data = []) {
     this.headerConfig = headerConfig;
-    //this.data = data;
+    this.data = data;
     this.sortedData = data;
     this.element = this.render();
     this.sortOrder = 'asc';
+    this.subElements = this.constructRows(this.sortedData);
   }
 
   render() {
@@ -63,6 +64,7 @@ export default class SortableTable {
         body.append(hyperlink);
       }
     }
+    this.subElements = body;
     return body;
   }
 

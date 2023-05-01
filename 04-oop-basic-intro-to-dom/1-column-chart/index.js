@@ -10,80 +10,67 @@ export default class ColumnChart {
     (value) => `${value}`} = {}) {
     this.data = data;
     this.label = label;
-    this.value = value;
+    this.value = formatHeading(value);
     this.link = link;
-    this.formatHeading = formatHeading;
-    this.maxValue = Math.max(...this.data);
-    this.element = this.getColumnChart();
+    this.render();
+  }
+
+  render() {
+    const wrapper = document.createElement('div');
+    wrapper.innerHTML = this.getColumnChart();
+    this.element = wrapper.firstElementChild;
   }
 
   getColumnChart() {
-    let columnChart = document.createElement('div');
-    columnChart.style.cssText = "--chart-height: " + this.chartHeight;
 
-    columnChart.appendChild(this.getColumnChartTitle());
-    if (this.data.length === 0) {
-      columnChart.className = "column-chart column-chart_loading";
-    }
-    else {
-      columnChart.className = "column-chart";
-    }
+    return `<div class="column-chart ${this.data.length === 0 ? 'column-chart_loading' : ''}" style="--chart-height: ${this.chartHeight}">
+      <div class="column-chart__title">
+        Total ${this.label}
+        ${this.link ? '<a href=${this.link} class="column-chart__link">View all</a>' : ''}
+      </div>
+      <div class="column-chart__container">
+        <div data-element="header" class="column-chart__header">${this.value}</div>
+        <div data-element="body" class="column-chart__chart">
+          ${this.getColumnsChart()}
+        </div>
+      </div>
+    </div>`;
+  }
 
-    columnChart.appendChild(this.getColumnChartContainer());
+  getColumnsChart() {
+    const maxValue = Math.max(...this.data);
+    const scale = this.chartHeight / maxValue;
+    let columnChart = "";
+
+    for (const item of this.data) {
+      const percent = (item / maxValue * 100).toFixed(0) + '%';
+      const value = String(Math.floor(item * scale));
+      columnChart += `<div style="--value: ${value}" data-tooltip="${percent}"></div>`;
+    }
     return columnChart;
-  }
 
-  getColumnChartTitle() {
-    let title = document.createElement('div');
-    title.className = "column-chart__title";
-    title.innerText = " Total " + this.label + " ";
-    if (this.link !== '') {
-      title.insertAdjacentHTML("beforeend", `<a class="column-chart__link" href="${this.link}">View all</a>`);
-    }
-    else {
-      title.insertAdjacentHTML("beforeend",
-        `<a class="column-chart__link" href="${this.link}" hidden>${this.label}</a>`);
-    }
-    return title;
-  }
-
-  getColumnChartContainer() {
-    let container = document.createElement('div');
-    container.className = "column-chart__container";
-    let header = document.createElement('div');
-    header.className = "column-chart__header";
-    header.dataset.element = "header";
-    header.innerText = this.formatHeading(this.value.toLocaleString("en-US"));
-    let body = document.createElement('div');
-    body.className = "column-chart__chart";
-    body.dataset.element = "body";
-    container.appendChild(header);
-    container.appendChild(body);
-    for (let value of this.data) {
-      let element = document.createElement('div');
-      element.className = "--value: " + value;
-      element.style.cssText = "--value: " + value;
-      element.dataset.tooltip = Math.round(100 * (value / this.maxValue)) + "%";
-      body.appendChild(element);
-    }
-    return container;
   }
 
   update(data) {
     this.destroy();
     this.data = data;
-    this.maxValue = Math.max(...this.data);
-    this.element = this.getColumnChart();
+    this.render();
   }
 
   destroy() {
-    this.element.remove();
+    this.remove();
     this.element = null;
   }
 
   remove() {
+    if (this.element && this.element.firstElementChild) {
+      this.element.firstElementChild.remove();
+    }
     if (this.element) {
       this.element.remove();
+      if (this.element.firstElementChild) {
+        this.element.firstElementChild.remove();
+      }
     }
   }
 

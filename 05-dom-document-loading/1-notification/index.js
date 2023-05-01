@@ -1,6 +1,6 @@
 export default class NotificationMessage {
 
-  static primeClass = "notification";
+  primeClass = "notification";
 
   constructor(message = "", {duration = 0, type = ""} = {}) {
     this.type = type;
@@ -11,11 +11,11 @@ export default class NotificationMessage {
   }
 
   show() {
-    let elements = document.getElementsByClassName(NotificationMessage.primeClass);
+    const elements = document.getElementsByClassName(NotificationMessage.primeClass);
     if (elements.length === 0) {
       document.body.append(this.element);
     }
-    setTimeout(this.remove, this.duration);
+    this.timer = setTimeout(() => this.remove(), this.duration);
   }
 
   render() {
@@ -33,22 +33,16 @@ export default class NotificationMessage {
     return element;
   }
 
-  update() {}
-
   destroy() {
     this.remove();
     this.element = null;
   }
 
   remove() {
-    let elements = document.getElementsByClassName(NotificationMessage.primeClass);
-    if (this.element !== undefined && this.element !== null) {
+    clearTimeout(this.timer);
+
+    if (this.element) {
       this.element.remove();
-    }
-    if (elements.length > 0) {
-      for (let element of elements) {
-        element.remove();
-      }
     }
   }
 
