@@ -2,13 +2,12 @@ export default class SortableTable {
   constructor(headersConfig, {
     data = [],
     sorted = {}
-  } = {}, sortLocally = true) {
+  } = {}) {
 
     this.data = data;
     this.sortedData = data;
     this.sorted = sorted;
     this.headersConfig = headersConfig;
-    this.isSortLocally = sortLocally;
     this.sortedColumn = headersConfig.filter(config => config['sortable'] === true)[0].id;
     this.render();
   }
@@ -48,7 +47,6 @@ ${this.sortedData.map(item => this.constructRow(item)).join("")}
 
   onClick = event => {
     const column = event.target.closest('[data-sortable="true"]');
-    console.log(this.sortedColumn);
 
     const toggleOrder = order => {
       const orders = {
