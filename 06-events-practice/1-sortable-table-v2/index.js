@@ -46,14 +46,6 @@ ${this.sortedData.map(item => this.constructRow(item)).join("")}
     this.initListeners();
   }
 
-  sortOnClient() {
-
-  }
-
-  sortOnServer() {
-
-  }
-
   onClick = event => {
     const column = event.target.closest('[data-sortable="true"]');
     console.log(this.sortedColumn);
