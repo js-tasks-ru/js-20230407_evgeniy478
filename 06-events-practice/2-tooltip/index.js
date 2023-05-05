@@ -2,8 +2,12 @@ class Tooltip {
 
   static instance;
 
+  cursorOffset = 15;
+
   constructor() {
-    return Tooltip.instance;
+    if (Tooltip.instance) {
+      return Tooltip.instance;
+    }
   }
 
   initialize () {
@@ -23,8 +27,8 @@ class Tooltip {
   }
 
   mouseOver = event => {
-    this.element.style.left = event.clientX + 15 + "px";
-    this.element.style.top = event.clientY + 15 + "px";
+    this.element.style.left = event.clientX + this.cursorOffset + "px";
+    this.element.style.top = event.clientY + this.cursorOffset + "px";
   }
 
   mouseOut = event => {
@@ -50,6 +54,10 @@ class Tooltip {
     if (this.element) {
       this.remove();
     }
+    document.body.removeEventListener("pointerover", this.mouseOut);
+    document.body.removeEventListener("pointerout", this.removeLabel);
+    document.body.removeEventListener("pointermove", this.mouseOver);
+    this.element = null;
   }
 
   remove() {

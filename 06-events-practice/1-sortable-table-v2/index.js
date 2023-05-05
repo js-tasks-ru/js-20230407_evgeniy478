@@ -61,7 +61,11 @@ ${this.sortedData.map(item => this.constructRow(item)).join("")}
       const { id, order } = column.dataset;
       this.sortedColumn = id;
       const newOrder = toggleOrder(order);
-      this.sort(id, newOrder);
+      //this.sort(id, newOrder);
+      this.element.getElementsByClassName("sortable-table__body").item(0).innerHTML = this
+        .sort(id, newOrder)
+        .map(item => this.constructRow(item))
+        .join("");
 
       column.dataset.order = newOrder;
       document.getElementsByClassName('sortable-table__sort-arrow').item(0).remove();
@@ -95,7 +99,7 @@ ${this.sortedData.map(item => this.constructRow(item)).join("")}
   }
 
   getSpan(id) {
-    let addSpan;
+    let addSpan = '';
     if (id === this.sortedColumn) {
       this.arrow = document.createElement('div');
       this.arrow.innerHTML = `<span data-element="arrow" class="sortable-table__sort-arrow">
@@ -103,24 +107,21 @@ ${this.sortedData.map(item => this.constructRow(item)).join("")}
         </span>`;
       addSpan = this.arrow.innerHTML;
     }
-    else {
-      addSpan = '';
-    }
     return addSpan;
   }
 
   constructRow(item = {}) {
-    let hyperlink = document.createElement('a');
-    hyperlink.href = "/products/" + item.id;
-    hyperlink.className = "sortable-table__row";
+    const hyperlink = document.createElement('div');
+    hyperlink.innerHTML = `<a href="/products/${item.id}" class="sortable-table__row"></a>`;
     this.headersConfig.map(config => {
       if (config.template && config.template instanceof Function) {
-        hyperlink.insertAdjacentHTML("beforeend", config.template(item.images));
+        hyperlink.firstElementChild.insertAdjacentHTML("beforeend", config.template(item.images));
       }
       else {
-        hyperlink.insertAdjacentHTML("beforeend", `<div className="sortable-table__cell">${item[config.id]}</div>`);
+        hyperlink.firstElementChild.insertAdjacentHTML("beforeend",
+          `<div className="sortable-table__cell">${item[config.id]}</div>`);
       }});
-    return hyperlink.outerHTML;
+    return hyperlink.innerHTML;
   }
 
   remove() {
@@ -135,18 +136,16 @@ ${this.sortedData.map(item => this.constructRow(item)).join("")}
   }
 
   sort(fieldValue, orderValue) {
-    let sortingHeader = this.headersConfig.filter(header => header.id === fieldValue)[0];
+    const sortingHeader = this.headersConfig.filter(header => header.id === fieldValue)[0];
+    const direction = orderValue === 'asc' ? 1 : -1;
+    this.sortOrder = orderValue;
     if (sortingHeader.sortType === 'string') {
-      this.sortedData.sort((a, b) => a[fieldValue].localeCompare(b[fieldValue], 'ru', {sensitivity: 'variant', caseFirst: "upper"}));
+      this.sortedData.sort((a, b) => direction * a[fieldValue].localeCompare(b[fieldValue], 'ru', {sensitivity: 'variant', caseFirst: "upper"}));
     }
     else {
-      this.sortedData.sort((a, b) => {return a[fieldValue] - b[fieldValue];});
+      this.sortedData.sort((a, b) => {return direction * (a[fieldValue] - b[fieldValue]);});
     }
-    if (orderValue === 'desc') {
-      this.sortedData.reverse();
-    }
-    this.sortOrder = orderValue;
-    document.getElementsByClassName("sortable-table__body").item(0).innerHTML = this.sortedData.map(item => this.constructRow(item)).join("");
+    return this.sortedData;
   }
 
 }
