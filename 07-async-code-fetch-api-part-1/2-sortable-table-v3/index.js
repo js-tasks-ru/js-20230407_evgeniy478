@@ -178,6 +178,8 @@ ${this.sortedData.map(item => this.constructRow(item)).join("")}
   destroy() {
     this.remove();
     this.subElements.header.removeEventListener('pointerdown', this.onClick);
+    window.removeEventListener('scroll', this.onScroll);
+    this.subElements.body.removeEventListener('keydown', this.onKeyDown);
     this.element = null;
   }
 
