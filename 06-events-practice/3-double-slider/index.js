@@ -1,12 +1,12 @@
 export default class DoubleSlider {
 
-  constructor({min = 400,
-    max = 600,
-    selected = {from: 500, to: 550},
+  constructor({min = 300,
+    max = 800,
+    selected = {from: 400, to: 600},
     formatValue = value => '$' + value} = {}) {
     this.format = formatValue;
-    this.min = this.format(min);
-    this.max = this.format(max);
+    this.min = selected.from ? this.format(selected.from) : this.format(min);
+    this.max = selected.to ? this.format(selected.to) : this.format(max);
     this.minPrice = min;
     this.maxPrice = max;
     this.initMin = selected.from;
@@ -18,7 +18,7 @@ export default class DoubleSlider {
     this.leftPercent = 0;
     this.rightPercent = 0;
     this.setInitValues();
-    this.dispatchEvents();
+    //this.dispatchEvents();
   }
 
   render() {
@@ -49,23 +49,8 @@ export default class DoubleSlider {
     this.sliderProgress.style.left = initMinPercent + "%";
   }
 
-  dispatchEvents() {
-    this.initSubElements();
-    const event = new MouseEvent("pointerdown", {
-      bubbles: true,
-    });
-    const event1 = new MouseEvent("pointermove", {
-      clientX: 0,
-      bubbles: true,
-    });
-    const event2 = new MouseEvent("pointerup", {
-      bubbles: true,
-    });
-    const elem = this.sliderLeft;
-    console.log(elem.outerHTML);
-    elem.dispatchEvent(event);
-    elem.dispatchEvent(event1);
-    elem.dispatchEvent(event2);
+  customEventF = event => {
+    console.log(event.detail);
   }
 
   mouseDown = event => {
@@ -116,9 +101,13 @@ export default class DoubleSlider {
 
   setLegend(fromPercent = 0, toPercent = 0) {
     const spanArray = this.element.getElementsByTagName('span');
-    spanArray[0].innerText = this.format(Math.floor(this.minPrice + (this.maxPrice - this.minPrice) * fromPercent / 100));
-    spanArray[spanArray.length - 1].innerText = this.format(Math.floor(
-      this.maxPrice - (this.maxPrice - this.minPrice) * toPercent / 100));
+    const from = Math.floor(this.minPrice + (this.maxPrice - this.minPrice) * fromPercent / 100);
+    const to = Math.floor(this.maxPrice - (this.maxPrice - this.minPrice) * toPercent / 100);
+    spanArray[0].innerText = this.format(from);
+    spanArray[spanArray.length - 1].innerText = this.format(to);
+    this.element.dispatchEvent(new CustomEvent("range-select", {
+      detail: { "from": from, "to": to }
+    }));
   }
 
   initSubElements() {
@@ -132,6 +121,7 @@ export default class DoubleSlider {
     document.addEventListener('pointerdown', this.mouseDown, true);
     document.addEventListener('pointerup', this.mouseUp, true);
     document.addEventListener('pointermove', this.mouseMove, true);
+    this.element.addEventListener("range-select", this.customEventF);
   }
 
   remove() {
@@ -142,9 +132,7 @@ export default class DoubleSlider {
 
   destroy() {
     this.remove();
-/*    document.removeEventListener('pointerdown', this.mouseDown, true);
-    document.removeEventListener('pointerup', this.mouseUp, true);
-    document.removeEventListener('pointermove', this.mouseMove, true);*/
+    this.element.removeEventListener("range-select", this.customEventF);
     this.element = null;
   }
 
