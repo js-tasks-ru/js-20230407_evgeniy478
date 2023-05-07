@@ -41,7 +41,7 @@ class Tooltip {
   }
 
   removeLabel = () => {
-    this.destroy();
+    this.remove();
     document.body.removeEventListener("pointermove", this.mouseOver);
   }
 
