@@ -1,36 +1,77 @@
 export default class DoubleSlider {
 
-  constructor() {
-    this.minPrice = 0;
-    this.maxPrice = 100;
+  constructor({min = 400,
+    max = 600,
+    selected = {from: 500, to: 550},
+    formatValue = value => '$' + value} = {}) {
+    this.format = formatValue;
+    this.min = this.format(min);
+    this.max = this.format(max);
+    this.minPrice = min;
+    this.maxPrice = max;
+    this.initMin = selected.from;
+    this.initMax = selected.to;
     this.render();
     this.initSubElements();
     this.initEventListeners();
     this.mouseDown = false;
     this.leftPercent = 0;
     this.rightPercent = 0;
+    this.setInitValues();
+    this.dispatchEvents();
   }
 
   render() {
     const wrapper = document.createElement('div');
     wrapper.innerHTML = `<div class="range-slider">
-    <span>$${this.minPrice}</span>
+    <span data-element="from">${this.min}</span>
     <div class="range-slider__inner">
       <span class="range-slider__progress"></span>
       <span class="range-slider__thumb-left"></span>
       <span class="range-slider__thumb-right"></span>
     </div>
-    <span>$${this.maxPrice}</span>
+    <span data-element="to">${this.max}</span>
   </div>`;
     this.element = wrapper.firstElementChild;
     return this.element;
+  }
+
+  setInitValues() {
+    const spanArray = this.element.getElementsByTagName('span');
+    spanArray[0].innerText = this.format(this.initMin);
+    spanArray[spanArray.length - 1].innerText = this.format(this.initMax);
+    const delta = this.maxPrice - this.minPrice;
+    const initMaxPercent = 100 * (this.maxPrice - this.initMax) / delta + "%";
+    const initMinPercent = 100 * (this.initMin - this.minPrice) / delta + "%";
+    this.sliderRight.style.right = initMaxPercent + "%";
+    this.sliderProgress.style.right = initMaxPercent + "%";
+    this.sliderLeft.style.left = initMinPercent + "%";
+    this.sliderProgress.style.left = initMinPercent + "%";
+  }
+
+  dispatchEvents() {
+    this.initSubElements();
+    const event = new MouseEvent("pointerdown", {
+      bubbles: true,
+    });
+    const event1 = new MouseEvent("pointermove", {
+      clientX: 0,
+      bubbles: true,
+    });
+    const event2 = new MouseEvent("pointerup", {
+      bubbles: true,
+    });
+    const elem = this.sliderLeft;
+    console.log(elem.outerHTML);
+    elem.dispatchEvent(event);
+    elem.dispatchEvent(event1);
+    elem.dispatchEvent(event2);
   }
 
   mouseDown = event => {
     this.currentArrow = event.target.className;
     this.startX = event.clientX;
     this.mouseDown = true;
-    console.log("Mousedown: " + event.clientX + " , " + event.target.className);
   }
 
   mouseUp = event => {
@@ -75,9 +116,9 @@ export default class DoubleSlider {
 
   setLegend(fromPercent = 0, toPercent = 0) {
     const spanArray = this.element.getElementsByTagName('span');
-    spanArray[0].innerText = this.formatDollars(fromPercent);
-    spanArray[spanArray.length - 1].innerText = this.formatDollars(
-      this.maxPrice - this.maxPrice * (toPercent / 100));
+    spanArray[0].innerText = this.format(Math.floor(this.minPrice + (this.maxPrice - this.minPrice) * fromPercent / 100));
+    spanArray[spanArray.length - 1].innerText = this.format(Math.floor(
+      this.maxPrice - (this.maxPrice - this.minPrice) * toPercent / 100));
   }
 
   initSubElements() {
@@ -88,28 +129,23 @@ export default class DoubleSlider {
   }
 
   initEventListeners() {
-    document.addEventListener('mousedown', this.mouseDown, true);
-
-    document.addEventListener('mouseup', this.mouseUp, true);
-
-    document.addEventListener('mousemove', this.mouseMove, true);
+    document.addEventListener('pointerdown', this.mouseDown, true);
+    document.addEventListener('pointerup', this.mouseUp, true);
+    document.addEventListener('pointermove', this.mouseMove, true);
   }
 
   remove() {
-
+    if (this.element) {
+      this.element.remove();
+    }
   }
 
   destroy() {
-
-  }
-
-  formatDollars(number = 0) {
-    const formatter = new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      maximumFractionDigits: 0
-    });
-    return formatter.format(number);
+    this.remove();
+/*    document.removeEventListener('pointerdown', this.mouseDown, true);
+    document.removeEventListener('pointerup', this.mouseUp, true);
+    document.removeEventListener('pointermove', this.mouseMove, true);*/
+    this.element = null;
   }
 
 }
