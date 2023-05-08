@@ -18,12 +18,17 @@ export default class DoubleSlider {
     this.leftPercent = 0;
     this.rightPercent = 0;
     this.setInitValues();
-    //this.dispatchEvents();
   }
 
   render() {
     const wrapper = document.createElement('div');
-    wrapper.innerHTML = `<div class="range-slider">
+    wrapper.innerHTML = this.template();
+    this.element = wrapper.firstElementChild;
+    return this.element;
+  }
+
+  template() {
+    return `<div class="range-slider">
     <span data-element="from">${this.min}</span>
     <div class="range-slider__inner">
       <span class="range-slider__progress"></span>
@@ -32,8 +37,6 @@ export default class DoubleSlider {
     </div>
     <span data-element="to">${this.max}</span>
   </div>`;
-    this.element = wrapper.firstElementChild;
-    return this.element;
   }
 
   setInitValues() {
@@ -131,9 +134,20 @@ export default class DoubleSlider {
   }
 
   destroy() {
-    this.remove();
-    this.element.removeEventListener("range-select", this.customEventF);
+    if (this.element) {
+      this.element.removeEventListener("range-select", this.customEventF);
+    }
+    if (this.mouseDown) {
+      document.removeEventListener('pointerdown', this.mouseDown, true);
+    }
+    if (this.mouseUp) {
+      document.removeEventListener('pointerup', this.mouseUp, true);
+    }
+    if (this.mouseMove) {
+      document.removeEventListener('pointermove', this.mouseMove, true);
+    }
     this.element = null;
+    this.remove();
   }
 
 }
