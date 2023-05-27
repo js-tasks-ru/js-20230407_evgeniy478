@@ -225,9 +225,6 @@ export default class ProductForm {
 
   getImageItem (imageName, imageUrl) {
     const wrapper = document.createElement('div');
-
-    console.log("ImageName " + imageName);
-    console.log("ImageUrl " + imageUrl);
     wrapper.innerHTML = `
       <li class="products-edit__imagelist-item sortable-list__item">
         <span>
